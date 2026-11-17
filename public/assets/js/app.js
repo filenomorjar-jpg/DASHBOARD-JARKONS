@@ -14,7 +14,8 @@ const COLUMNS = [
   "Kontrol Open",
   "Lama Padam",
   "Konversi Waktu",
-  "Indikasi Penyebab",
+  "Indikasi:,
+  "Penyebab",
   "RCT",
   "Detail Penyebab"
 ];
