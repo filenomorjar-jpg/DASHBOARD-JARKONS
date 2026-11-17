@@ -39,7 +39,8 @@ const SHEET_CONFIG = {
       "Kontrol Open",
       "Lama Padam",
       "Konversi Waktu",
-      "Indikasi Penyebab",
+      "Indikasi", 
+      "Penyebab",
       "RCT",
       "Detail Penyebab"
     ]
