@@ -1,424 +1,764 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard Monitoring</title>
+  <meta name="theme-color" content="#142b4a">
+  <title>Dashboard Jarkons | Monitoring Gangguan</title>
 
+  <!-- Chart.js untuk visualisasi. Tabel dan KPI tetap bekerja jika CDN gagal dimuat. -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
+    :root {
+      --navy: #142b4a;
+      --navy-2: #1d3b61;
+      --blue: #2563eb;
+      --bg: #f3f6fb;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --line: #e5eaf1;
+      --green: #16834a;
+      --amber: #b76b08;
+      --red: #c53b3b;
+      --shadow: 0 8px 24px rgba(20, 43, 74, .06);
+    }
+
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f5f9;
-      color: #182230;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, Segoe UI, Arial, sans-serif;
     }
 
     header {
-      background: #142b4a;
-      color: white;
-      padding: 24px;
+      color: #fff;
+      background: linear-gradient(120deg, var(--navy), var(--navy-2));
+      padding: 25px 28px;
     }
 
-    header h1 { margin: 0 0 8px; }
-    header p { margin: 0; color: #d4dfed; }
-
-    main {
-      max-width: 1200px;
-      margin: auto;
-      padding: 24px;
+    .header-inner, main {
+      width: min(1500px, 100%);
+      margin: 0 auto;
     }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 7px;
+      color: #bfcee0;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    h1 { margin: 0; font-size: clamp(22px, 3vw, 30px); }
+    .subtitle { margin: 7px 0 0; color: #d7e2ef; font-size: 14px; }
+
+    .connection {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 999px;
+      color: #f8fafc;
+      font-size: 12px;
+      white-space: nowrap;
+      background: rgba(255,255,255,.08);
+    }
+
+    .connection::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f5bd48;
+    }
+
+    .connection.online::before { background: #4ade80; }
+    .connection.offline::before { background: #f87171; }
+
+    main { padding: 24px 28px 36px; }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 4px 0 14px;
+    }
+
+    .section-heading h2 { margin: 0; font-size: 16px; }
+    .section-note { color: var(--muted); font-size: 12px; }
 
     .cards {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
     }
 
     .card, .panel {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px #0000000a;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
     }
 
-    .card h3 {
-      color: #64748b;
-      font-size: 14px;
-      margin: 0;
+    .card { padding: 18px 20px; min-height: 118px; }
+    .card-label { margin: 0; color: var(--muted); font-size: 12px; font-weight: 600; }
+    .card-value { display: block; margin-top: 12px; font-size: 30px; line-height: 1; font-weight: 750; }
+    .card-foot { margin-top: 9px; color: #94a3b8; font-size: 11px; }
+
+    .panel { padding: 19px; margin-bottom: 18px; min-width: 0; }
+    .panel h2 { margin: 0; font-size: 15px; }
+    .panel-desc { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+
+    .charts {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      gap: 18px;
+      margin-bottom: 18px;
     }
 
-    .card strong {
+    .chart-wrap { position: relative; height: 300px; margin-top: 18px; }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .field label {
       display: block;
-      font-size: 30px;
-      margin-top: 12px;
+      margin-bottom: 6px;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 650;
     }
 
-    .green { color: #16a34a; }
-    .orange { color: #d97706; }
-    .red { color: #dc2626; }
-
-    .panel { margin-bottom: 20px; }
-
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
+    input, select {
+      width: 100%;
+      min-width: 0;
+      padding: 10px 11px;
+      border: 1px solid #d7dee8;
+      border-radius: 9px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      outline: none;
     }
 
-    input {
-      padding: 10px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      min-width: 230px;
+    input:focus, select:focus {
+      border-color: #78a5f5;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.1);
     }
 
     button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      background: #2563eb;
-      color: white;
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 14px;
+      background: var(--blue);
+      color: #fff;
       cursor: pointer;
+      font-weight: 650;
+      font-size: 12px;
+    }
+
+    button:hover { filter: brightness(.96); }
+    button:disabled { opacity: .55; cursor: wait; }
+    .button-secondary { background: #eaf0f8; color: #24415f; }
+
+    .table-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .search-box { width: min(360px, 100%); }
+    .table-wrap {
+      width: 100%;
+      overflow: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 16px;
-      font-size: 14px;
+      min-width: 1450px;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 12px;
     }
 
     th, td {
-      padding: 12px;
-      border-bottom: 1px solid #e5e7eb;
+      max-width: 260px;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
       text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
     }
 
     th {
-      background: #f8fafc;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f6f8fb;
+      color: #475569;
+      font-size: 11px;
+      white-space: nowrap;
     }
 
-    .table-wrap {
-      overflow-x: auto;
+    tbody tr:hover { background: #f8fbff; }
+    tbody tr:last-child td { border-bottom: 0; }
+
+    .table-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 13px;
+      color: var(--muted);
+      font-size: 12px;
     }
 
-    #message {
-      color: #64748b;
-      font-size: 13px;
+    .pager { display: flex; align-items: center; gap: 8px; }
+    .pager button { min-width: 70px; }
+    .pager button:disabled { background: #e8edf4; color: #94a3b8; }
+
+    .notice {
+      display: none;
       margin-top: 12px;
+      padding: 11px 13px;
+      border-radius: 9px;
+      background: #fff7ed;
+      color: #9a3412;
+      font-size: 12px;
+      overflow-wrap: anywhere;
     }
 
-    @media (max-width: 700px) {
-      .cards { grid-template-columns: repeat(2, 1fr); }
-      main { padding: 14px; }
-      header { padding: 20px 14px; }
+    .notice.show { display: block; }
+    .empty { padding: 28px; text-align: center; color: var(--muted); }
+    .last-updated { color: var(--muted); font-size: 11px; }
+
+    footer {
+      padding: 0 28px 26px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 11px;
+    }
+
+    @media (max-width: 900px) {
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .charts { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 20px 16px; }
+      .header-inner { align-items: flex-start; flex-direction: column; }
+      main { padding: 17px 14px 28px; }
+      .cards { gap: 10px; }
+      .card { padding: 15px; min-height: 105px; }
+      .card-value { font-size: 25px; }
+      .filter-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .panel { padding: 15px; }
+      .chart-wrap { height: 260px; }
+      footer { padding-left: 14px; padding-right: 14px; }
+    }
+
+    @media (max-width: 380px) {
+      .filter-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
-
 <body>
-
-<header>
-  <h1>Dashboard Monitoring</h1>
-  <p>Monitoring data operasional secara otomatis</p>
-</header>
-
-<main>
-
-  <section class="cards">
-    <div class="card">
-      <h3>Total Data</h3>
-      <strong id="total">0</strong>
-    </div>
-
-    <div class="card">
-      <h3>Selesai</h3>
-      <strong class="green" id="selesai">0</strong>
-    </div>
-
-    <div class="card">
-      <h3>Proses</h3>
-      <strong class="orange" id="proses">0</strong>
-    </div>
-
-    <div class="card">
-      <h3>Belum</h3>
-      <strong class="red" id="belum">0</strong>
-    </div>
-  </section>
-
-  <section class="panel">
-    <h3>Rekap Status Pekerjaan</h3>
-    <div style="max-width:650px; margin:auto;">
-      <canvas id="statusChart"></canvas>
-    </div>
-  </section>
-
-  <section class="panel">
-    <h3>Jumlah Data per ULP</h3>
-    <div style="height:300px;">
-      <canvas id="ulpChart"></canvas>
-    </div>
-  </section>
-
-  <section class="panel">
-    <div class="toolbar">
-      <h3>Data Monitoring</h3>
+  <header>
+    <div class="header-inner">
       <div>
-        <input id="search" placeholder="Cari ULP atau penyulang...">
-        <button onclick="loadData()">Refresh</button>
+        <p class="eyebrow">Operational Monitoring</p>
+        <h1>Dashboard Jarkons</h1>
+        <p class="subtitle">Monitoring data gangguan jaringan distribusi</p>
       </div>
+      <div id="connectionStatus" class="connection">Menghubungkan...</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="section-heading">
+      <h2>Ringkasan Data</h2>
+      <span class="last-updated">Terakhir diperbarui: <strong id="updatedAt">-</strong></span>
     </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Tanggal</th>
-            <th>ULP</th>
-            <th>Penyulang</th>
-            <th>Jenis Gangguan</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="dataBody"></tbody>
-      </table>
-    </div>
+    <section class="cards" aria-label="Ringkasan data">
+      <article class="card">
+        <p class="card-label">Total Catatan Gangguan</p>
+        <strong class="card-value" id="totalRecords">0</strong>
+        <div class="card-foot">Jumlah baris data sesuai filter</div>
+      </article>
+      <article class="card">
+        <p class="card-label">ULP Terdata</p>
+        <strong class="card-value" id="totalULP">0</strong>
+        <div class="card-foot">ULP berbeda</div>
+      </article>
+      <article class="card">
+        <p class="card-label">Penyulang Terdata</p>
+        <strong class="card-value" id="totalPenyulang">0</strong>
+        <div class="card-foot">Berdasarkan ID penyulang atau nama penyulang</div>
+      </article>
+      <article class="card">
+        <p class="card-label">Jenis Keypoint</p>
+        <strong class="card-value" id="totalKeypoint">0</strong>
+        <div class="card-foot">Jenis keypoint berbeda</div>
+      </article>
+    </section>
 
-    <p id="message">Menunggu data...</p>
-    <p id="updated">Belum diperbarui</p>
-  </section>
+    <section class="charts" aria-label="Grafik monitoring">
+      <article class="panel">
+        <h2>Jumlah Catatan per ULP</h2>
+        <p class="panel-desc">Perbandingan jumlah catatan gangguan pada setiap ULP.</p>
+        <div class="chart-wrap"><canvas id="ulpChart"></canvas></div>
+      </article>
+      <article class="panel">
+        <h2>Komposisi Jenis Keypoint</h2>
+        <p class="panel-desc">Distribusi catatan berdasarkan jenis keypoint.</p>
+        <div class="chart-wrap"><canvas id="keypointChart"></canvas></div>
+      </article>
+    </section>
 
-</main>
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Filter Data</h2>
+          <p class="panel-desc">Pilih kriteria untuk menyaring data yang ditampilkan.</p>
+        </div>
+        <button id="resetFilters" type="button" class="button-secondary">Reset filter</button>
+      </div>
 
-<script>
-  // GANTI DENGAN URL CSV GOOGLE SHEETS KAMU
-  const CSV_URL = "https://docs.google.com/spreadsheets/d/18iZy8_gQXILvZMybxYPhXi9FsLzC6OBFWiP_tQBOVyw/edit?usp=sharing";
+      <div class="filter-grid">
+        <div class="field">
+          <label for="filter-blth">BLTH</label>
+          <select id="filter-blth"><option value="">Semua BLTH</option></select>
+        </div>
+        <div class="field">
+          <label for="filter-tahun">Tahun</label>
+          <select id="filter-tahun"><option value="">Semua tahun</option></select>
+        </div>
+        <div class="field">
+          <label for="filter-ulp">ULP</label>
+          <select id="filter-ulp"><option value="">Semua ULP</option></select>
+        </div>
+        <div class="field">
+          <label for="filter-penyulang">Penyulang</label>
+          <select id="filter-penyulang"><option value="">Semua penyulang</option></select>
+        </div>
+        <div class="field">
+          <label for="filter-keypoint">Jenis Keypoint</label>
+          <select id="filter-keypoint"><option value="">Semua jenis</option></select>
+        </div>
+        <div class="field">
+          <label for="filter-penyebab">Indikasi Penyebab</label>
+          <select id="filter-penyebab"><option value="">Semua penyebab</option></select>
+        </div>
+      </div>
+    </section>
 
-  // Update dashboard setiap 60 detik
-  const REFRESH_MS = 60000;
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Detail Data Gangguan</h2>
+          <p class="panel-desc">Menampilkan seluruh 14 kolom dari sheet DATA_GANGGUAN.</p>
+        </div>
+        <button id="refreshButton" type="button">Refresh data</button>
+      </div>
 
-  let allRows = [];
-  let statusChart = null;
-  let ulpChart = null;
+      <div class="table-toolbar">
+        <input id="search" class="search-box" type="search" placeholder="Cari lokasi, ULP, penyulang, penyebab..." aria-label="Cari data">
+        <span class="last-updated" id="rowCount">0 data ditampilkan</span>
+      </div>
 
-  function clean(value) {
-    return String(value ?? "").trim();
-  }
+      <div id="errorMessage" class="notice" role="alert"></div>
 
-  function escapeHTML(value) {
-    return clean(value).replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[char]));
-  }
+      <div class="table-wrap">
+        <table>
+          <thead><tr id="tableHeader"></tr></thead>
+          <tbody id="dataBody">
+            <tr><td class="empty" colspan="14">Mengambil data...</td></tr>
+          </tbody>
+        </table>
+      </div>
 
-  function statusGroup(value) {
-    const status = clean(value).toLowerCase();
+      <div class="table-footer">
+        <span id="pageInfo">Halaman 0 dari 0</span>
+        <div class="pager">
+          <button id="previousPage" class="button-secondary" type="button" disabled>Sebelumnya</button>
+          <button id="nextPage" class="button-secondary" type="button" disabled>Berikutnya</button>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    if (status === "selesai") return "Selesai";
-    if (status.includes("proses")) return "Proses";
-    if (status.includes("belum") || status === "pending") {
-      return "Belum";
+  <footer>
+    Dashboard Jarkons · Data dibaca dari Google Sheets melalui backend API.
+    Pembaruan otomatis setiap 1 menit selama halaman terbuka.
+  </footer>
+
+  <script>
+    "use strict";
+
+    // Gunakan backend Cloudflare. Jangan masukkan URL Google Sheets atau API key di sini.
+    const API_URL = "/api/data?sheet=DATA_GANGGUAN";
+    const REFRESH_INTERVAL = 60 * 1000;
+    const PAGE_SIZE = 25;
+
+    const COLUMNS = [
+      "BLTH",
+      "Tahun",
+      "ULP",
+      "Lokasi",
+      "Penyulang",
+      "ID Penyulang",
+      "Nama Pemutus",
+      "Jenis Keypoint",
+      "Kontrol Open",
+      "Lama Padam",
+      "Konversi Waktu",
+      "Indikasi Penyebab",
+      "RCT",
+      "Detail Penyebab"
+    ];
+
+    const FILTERS = [
+      { column: "BLTH", id: "filter-blth" },
+      { column: "Tahun", id: "filter-tahun" },
+      { column: "ULP", id: "filter-ulp" },
+      { column: "Penyulang", id: "filter-penyulang" },
+      { column: "Jenis Keypoint", id: "filter-keypoint" },
+      { column: "Indikasi Penyebab", id: "filter-penyebab" }
+    ];
+
+    let allRows = [];
+    let ulpChart = null;
+    let keypointChart = null;
+    let isLoading = false;
+    let currentPage = 1;
+
+    const $ = id => document.getElementById(id);
+
+    function normalize(value) {
+      return String(value ?? "").trim();
     }
 
-    return "Belum";
-  }
-
-  async function loadData() {
-    const message = document.getElementById("message");
-
-    if (CSV_URL.includes("MASUKKAN_URL")) {
-      message.textContent = "Masukkan URL CSV terlebih dahulu.";
-      return;
+    function uniqueValues(rows, column) {
+      return [...new Set(
+        rows.map(row => normalize(row[column])).filter(Boolean)
+      )].sort((a, b) => a.localeCompare(b, "id", {
+        numeric: true,
+        sensitivity: "base"
+      }));
     }
 
-    message.textContent = "Mengambil data terbaru...";
+    function populateFilters() {
+      FILTERS.forEach(({ column, id }) => {
+        const select = $(id);
+        if (!select) return;
 
-    try {
-      const url = new URL(CSV_URL);
-      url.searchParams.set("_refresh", Date.now());
+        const previousValue = select.value;
+        const values = uniqueValues(allRows, column);
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Semua";
+        select.replaceChildren(placeholder);
 
-      const response = await fetch(url.toString(), {
-        cache: "no-store"
+        values.forEach(value => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          select.appendChild(option);
+        });
+
+        select.value = values.includes(previousValue) ? previousValue : "";
+      });
+    }
+
+    function getFilteredRows() {
+      const keyword = normalize($("search")?.value).toLocaleLowerCase("id-ID");
+
+      return allRows.filter(row => {
+        const matchesSearch = !keyword || COLUMNS.some(column =>
+          normalize(row[column]).toLocaleLowerCase("id-ID").includes(keyword)
+        );
+
+        const matchesFilters = FILTERS.every(({ column, id }) => {
+          const selected = $(id)?.value || "";
+          return !selected || normalize(row[column]) === selected;
+        });
+
+        return matchesSearch && matchesFilters;
+      });
+    }
+
+    function countUnique(rows, column, fallbackColumn) {
+      const values = rows.map(row => {
+        const value = normalize(row[column]);
+        return value || (fallbackColumn ? normalize(row[fallbackColumn]) : "");
+      }).filter(Boolean);
+      return new Set(values).size;
+    }
+
+    function updateKPI(rows) {
+      $("totalRecords").textContent = rows.length.toLocaleString("id-ID");
+      $("totalULP").textContent = countUnique(rows, "ULP").toLocaleString("id-ID");
+      $("totalPenyulang").textContent = countUnique(rows, "ID Penyulang", "Penyulang").toLocaleString("id-ID");
+      $("totalKeypoint").textContent = countUnique(rows, "Jenis Keypoint").toLocaleString("id-ID");
+    }
+
+    function countBy(rows, column) {
+      const counts = new Map();
+
+      rows.forEach(row => {
+        const label = normalize(row[column]) || "Tidak diisi";
+        counts.set(label, (counts.get(label) || 0) + 1);
       });
 
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
-
-      const csv = await response.text();
-
-      const result = Papa.parse(csv, {
-        header: true,
-        skipEmptyLines: true
-      });
-
-      if (result.errors.length > 0) {
-        console.warn(result.errors);
-      }
-
-      allRows = result.data.filter(row =>
-        Object.values(row).some(value => clean(value) !== "")
-      );
-
-      renderDashboard();
-
-      document.getElementById("updated").textContent =
-        "Terakhir diperbarui: " +
-        new Date().toLocaleString("id-ID");
-
-      message.textContent =
-        "Data berhasil dimuat: " + allRows.length + " baris.";
-
-    } catch (error) {
-      message.textContent =
-        "Gagal mengambil data: " + error.message;
-
-      console.error(error);
+      return [...counts.entries()].sort((a, b) => b[1] - a[1]);
     }
-  }
 
-  function renderDashboard() {
-    const selesai = allRows.filter(
-      row => statusGroup(row.Status) === "Selesai"
-    ).length;
+    function renderCharts(rows) {
+      if (typeof Chart === "undefined") {
+        return;
+      }
 
-    const proses = allRows.filter(
-      row => statusGroup(row.Status) === "Proses"
-    ).length;
+      const ulpCounts = countBy(rows, "ULP");
+      const keypointCounts = countBy(rows, "Jenis Keypoint");
 
-    const belum = allRows.filter(
-      row => statusGroup(row.Status) === "Belum"
-    ).length;
+      const ulpLabels = ulpCounts.map(item => item[0]);
+      const ulpValues = ulpCounts.map(item => item[1]);
+      const keypointLabels = keypointCounts.map(item => item[0]);
+      const keypointValues = keypointCounts.map(item => item[1]);
 
-    document.getElementById("total").textContent = allRows.length;
-    document.getElementById("selesai").textContent = selesai;
-    document.getElementById("proses").textContent = proses;
-    document.getElementById("belum").textContent = belum;
-
-    updateCharts(selesai, proses, belum);
-    renderTable(allRows);
-  }
-
-  function updateCharts(selesai, proses, belum) {
-    const statusData = [selesai, proses, belum];
-
-    if (statusChart) {
-      statusChart.data.datasets[0].data = statusData;
-      statusChart.update();
-    } else {
-      statusChart = new Chart(
-        document.getElementById("statusChart"),
-        {
-          type: "doughnut",
+      if (ulpChart) {
+        ulpChart.data.labels = ulpLabels;
+        ulpChart.data.datasets[0].data = ulpValues;
+        ulpChart.update();
+      } else {
+        ulpChart = new Chart($("ulpChart"), {
+          type: "bar",
           data: {
-            labels: ["Selesai", "Proses", "Belum"],
+            labels: ulpLabels,
             datasets: [{
-              data: statusData,
-              backgroundColor: [
-                "#16a34a", "#e6a23c", "#dc2626"
-              ]
+              label: "Jumlah catatan",
+              data: ulpValues,
+              backgroundColor: "#2878d0",
+              borderRadius: 5
             }]
           },
           options: {
+            indexAxis: "y",
             responsive: true,
-            maintainAspectRatio: true
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { beginAtZero: true, ticks: { precision: 0 } }
+            }
           }
-        }
-      );
-    }
+        });
+      }
 
-    const counts = {};
-
-    allRows.forEach(row => {
-      const ulp = clean(row.ULP) || "Tidak diketahui";
-      counts[ulp] = (counts[ulp] || 0) + 1;
-    });
-
-    const labels = Object.keys(counts);
-    const values = Object.values(counts);
-
-    if (ulpChart) {
-      ulpChart.data.labels = labels;
-      ulpChart.data.datasets[0].data = values;
-      ulpChart.update();
-    } else {
-      ulpChart = new Chart(
-        document.getElementById("ulpChart"),
-        {
-          type: "bar",
+      if (keypointChart) {
+        keypointChart.data.labels = keypointLabels;
+        keypointChart.data.datasets[0].data = keypointValues;
+        keypointChart.update();
+      } else {
+        keypointChart = new Chart($("keypointChart"), {
+          type: "doughnut",
           data: {
-            labels,
+            labels: keypointLabels,
             datasets: [{
-              label: "Jumlah Data",
-              data: values,
-              backgroundColor: "#2563eb"
+              data: keypointValues,
+              backgroundColor: [
+                "#2563eb", "#0f9f83", "#e6a23c", "#805ad5",
+                "#dc5252", "#0e7490", "#64748b", "#84a83d"
+              ],
+              borderWidth: 2,
+              borderColor: "#ffffff"
             }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: { precision: 0 }
-              }
-            }
+            plugins: { legend: { position: "bottom" } }
           }
+        });
+      }
+    }
+
+    function renderTable(rows) {
+      const header = $("tableHeader");
+      const body = $("dataBody");
+      header.replaceChildren();
+      body.replaceChildren();
+
+      COLUMNS.forEach(column => {
+        const th = document.createElement("th");
+        th.textContent = column;
+        header.appendChild(th);
+      });
+
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      currentPage = Math.min(currentPage, totalPages);
+      const start = (currentPage - 1) * PAGE_SIZE;
+      const pageRows = rows.slice(start, start + PAGE_SIZE);
+
+      if (pageRows.length === 0) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = COLUMNS.length;
+        td.className = "empty";
+        td.textContent = "Tidak ada data yang sesuai dengan filter.";
+        tr.appendChild(td);
+        body.appendChild(tr);
+      } else {
+        pageRows.forEach(row => {
+          const tr = document.createElement("tr");
+          COLUMNS.forEach(column => {
+            const td = document.createElement("td");
+            // textContent mencegah isi spreadsheet ditafsirkan sebagai HTML.
+            td.textContent = row[column] ?? "";
+            tr.appendChild(td);
+          });
+          body.appendChild(tr);
+        });
+      }
+
+      $("rowCount").textContent = `${rows.length.toLocaleString("id-ID")} data ditampilkan`;
+      $("pageInfo").textContent = `Halaman ${currentPage} dari ${totalPages}`;
+      $("previousPage").disabled = currentPage <= 1;
+      $("nextPage").disabled = currentPage >= totalPages;
+    }
+
+    function renderDashboard() {
+      const rows = getFilteredRows();
+      updateKPI(rows);
+      renderCharts(rows);
+      renderTable(rows);
+    }
+
+    async function loadData() {
+      if (isLoading) return;
+      isLoading = true;
+      $("refreshButton").disabled = true;
+      $("connectionStatus").textContent = "Memperbarui data...";
+      $("connectionStatus").className = "connection";
+      $("errorMessage").classList.remove("show");
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "GET",
+          cache: "no-store",
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!response.ok) {
+          throw new Error(`API mengembalikan HTTP ${response.status}`);
         }
-      );
+
+        const result = await response.json();
+
+        if (!result.success || !Array.isArray(result.rows)) {
+          throw new Error(result.message || "Respons API tidak sesuai format.");
+        }
+
+        // Validasi dasar header yang wajib tersedia.
+        const missing = COLUMNS.filter(column =>
+          !Array.isArray(result.columns) || !result.columns.includes(column)
+        );
+
+        if (missing.length > 0) {
+          throw new Error("Kolom API belum lengkap: " + missing.join(", "));
+        }
+
+        allRows = result.rows;
+        populateFilters();
+        renderDashboard();
+
+        $("connectionStatus").textContent = "Terhubung · DATA_GANGGUAN";
+        $("connectionStatus").className = "connection online";
+        $("updatedAt").textContent = new Date(
+          result.fetchedAt || Date.now()
+        ).toLocaleString("id-ID");
+
+      } catch (error) {
+        console.error("Dashboard refresh error:", error);
+        $("connectionStatus").textContent = "Koneksi bermasalah";
+        $("connectionStatus").className = "connection offline";
+        $("errorMessage").textContent = error.message;
+        $("errorMessage").classList.add("show");
+        // Data terakhir yang berhasil dimuat tetap ditampilkan.
+      } finally {
+        isLoading = false;
+        $("refreshButton").disabled = false;
+      }
     }
-  }
 
-  function renderTable(rows) {
-    const body = document.getElementById("dataBody");
+    $("search").addEventListener("input", () => {
+      currentPage = 1;
+      renderDashboard();
+    });
 
-    body.innerHTML = rows.map(row => `
-      <tr>
-        <td>${escapeHTML(row.Tanggal)}</td>
-        <td>${escapeHTML(row.ULP)}</td>
-        <td>${escapeHTML(row.Penyulang)}</td>
-        <td>${escapeHTML(row["Jenis Gangguan"])}</td>
-        <td>${escapeHTML(row.Status)}</td>
-      </tr>
-    `).join("");
-  }
+    FILTERS.forEach(({ id }) => {
+      $(id).addEventListener("change", () => {
+        currentPage = 1;
+        renderDashboard();
+      });
+    });
 
-  document.getElementById("search").addEventListener(
-    "input", function() {
-      const keyword = this.value.toLowerCase();
+    $("resetFilters").addEventListener("click", () => {
+      FILTERS.forEach(({ id }) => { $(id).value = ""; });
+      $("search").value = "";
+      currentPage = 1;
+      renderDashboard();
+    });
 
-      const filtered = allRows.filter(row =>
-        [
-          row.ULP,
-          row.Penyulang,
-          row["Jenis Gangguan"],
-          row.Status
-        ].some(value => clean(value).toLowerCase().includes(keyword))
-      );
+    $("refreshButton").addEventListener("click", loadData);
 
-      renderTable(filtered);
-    }
-  );
+    $("previousPage").addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable(getFilteredRows());
+      }
+    });
 
-  loadData();
+    $("nextPage").addEventListener("click", () => {
+      const rows = getFilteredRows();
+      const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTable(rows);
+      }
+    });
 
-  // Ambil data terbaru setiap 60 detik
-  setInterval(loadData, REFRESH_MS);
-</script>
-
+    // Ambil data saat halaman dibuka, lalu setiap 60 detik.
+    loadData();
+    setInterval(loadData, REFRESH_INTERVAL);
+  </script>
 </body>
 </html>
