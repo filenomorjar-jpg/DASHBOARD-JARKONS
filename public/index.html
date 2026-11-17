@@ -384,7 +384,7 @@
       <div class="section-heading">
         <div>
           <h2>Detail Data Gangguan</h2>
-          <p class="panel-desc">Menampilkan seluruh 14 kolom dari sheet DATA_GANGGUAN.</p>
+          <p class="panel-desc">Menampilkan seluruh 15 kolom dari sheet DATA_GANGGUAN.</p>
         </div>
         <button id="refreshButton" type="button">Refresh data</button>
       </div>
@@ -400,7 +400,7 @@
         <table>
           <thead><tr id="tableHeader"></tr></thead>
           <tbody id="dataBody">
-            <tr><td class="empty" colspan="14">Mengambil data...</td></tr>
+            <tr><td class="empty" colspan="15">Mengambil data...</td></tr>
           </tbody>
         </table>
       </div>
@@ -440,7 +440,8 @@
       "Kontrol Open",
       "Lama Padam",
       "Konversi Waktu",
-      "Indikasi Penyebab",
+      "Indikasi",
+      "Penyebab",
       "RCT",
       "Detail Penyebab"
     ];
@@ -451,7 +452,8 @@
       { column: "ULP", id: "filter-ulp" },
       { column: "Penyulang", id: "filter-penyulang" },
       { column: "Jenis Keypoint", id: "filter-keypoint" },
-      { column: "Indikasi Penyebab", id: "filter-penyebab" }
+      { column: "Indikasi", id: "filter-indikasi" }
+      { column: "Penyebab", id: "filter-penyebab" }
     ];
 
     let allRows = [];
