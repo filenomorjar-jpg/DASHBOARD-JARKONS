@@ -25,7 +25,7 @@
 
 const SHEET_CONFIG = {
   DATA_GANGGUAN: {
-    range: "'DATA_GANGGUAN'!A1:N",
+    range: "'DATA_GANGGUAN'!A1:O",
 
     columns: [
       "BLTH",
