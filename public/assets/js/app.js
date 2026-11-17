@@ -14,7 +14,7 @@ const COLUMNS = [
   "Kontrol Open",
   "Lama Padam",
   "Konversi Waktu",
-  "Indikasi:,
+  "Indikasi",
   "Penyebab",
   "RCT",
   "Detail Penyebab"
@@ -31,7 +31,8 @@ const FILTERS = [
   "ULP",
   "Penyulang",
   "Jenis Keypoint",
-  "Indikasi Penyebab"
+  "Indikasi", 
+  "Penyebab"
 ];
 
 function uniqueValues(rows, column) {
