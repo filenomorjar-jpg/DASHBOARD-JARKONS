@@ -91,7 +91,7 @@ async function getGoogleToken(serviceAccount) {
 export async function onRequestGet({ env }) {
   try {
     const spreadsheetId = env.SPREADSHEET_ID;
-    const range = env.SHEET_RANGE || "DATA_GANGGUAN!A1:F";
+    const range = env.SHEET_RANGE || "DATA GANGGUAN!A1:O";
 
     if (!spreadsheetId || !env.GOOGLE_SERVICE_ACCOUNT_JSON) {
       throw new Error("Server configuration is incomplete");
