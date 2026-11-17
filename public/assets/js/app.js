@@ -1,6 +1,6 @@
 
 const API_URL = "/api/data?sheet=DATA_GANGGUAN";
-const REFRESH_INTERVAL = 60 * 1000;
+const REFRESH_INTERVAL = 900 * 1000;
 
 const COLUMNS = [
   "BLTH",
