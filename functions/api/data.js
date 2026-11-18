@@ -152,11 +152,11 @@ async function getSheetData(env, sheetName) {
   const range = ALLOWED_SHEETS[sheetName];
 
   const url =
-    "https://sheets.googleapis.com/v4/spreadsheets/?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING" +
+    "https://sheets.googleapis.com/v4/spreadsheets/" +
     encodeURIComponent(env.SPREADSHEET_ID) +
     "/values/" +
     encodeURIComponent(range) +
-    "?valueRenderOption=UNFORMATTED_VALUE";
+    "?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING";
 
   const response = await fetch(url, {
     headers: {
