@@ -6,7 +6,7 @@
 
 // Daftar Sheet yang diizinkan beserta rentang datanya
 const ALLOWED_SHEETS = {
-  DATA_GANGGUAN: "'DATA_GANGGUAN'!A1:N",
+  DATA_GANGGUAN: "'DATA_GANGGUAN'!A1:O",
   DATA_KINERJA: "'DATA_KINERJA'!A1:M"
 };
 
