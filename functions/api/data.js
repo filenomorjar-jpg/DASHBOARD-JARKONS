@@ -7,6 +7,22 @@
 // Daftar Sheet yang diizinkan beserta rentang datanya
 const ALLOWED_SHEETS = {
   DATA_GANGGUAN: "'DATA_GANGGUAN'!A1:O",
+  columns: [
+      "BLTH",
+      "Tahun",
+      "ULP",
+      "Lokasi",
+      "Penyulang",
+      "ID Penyulang",
+      "Nama Pemutus",
+      "Jenis Keypoint",
+      "Kontrol Open",
+      "Lama Padam",
+      "Konversi Waktu",
+      "Indikasi Penyebab",
+      "RCT",
+      "Detail Penyebab"
+    ]
   DATA_KINERJA: "'DATA_KINERJA'!A1:M"
 };
 
