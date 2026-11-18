@@ -23,7 +23,7 @@ const ALLOWED_SHEETS = {
       "RCT",
       "Detail Penyebab"
     ]
-  DATA_KINERJA: "'DATA_KINERJA'!A1:M"
+  DATA_KINERJA: "'DATA_KINERJA'!A1:H"
 };
 
 // -----------------------------------------------------
