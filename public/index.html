@@ -10,13 +10,19 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body>
+<body data-page="gangguan">
+  <!-- data-page memilih konfigurasi di app.js (PAGES.gangguan) -->
+
   <header>
     <div class="header-inner">
       <div>
         <p class="eyebrow">Operational Monitoring</p>
         <h1>Dashboard Jarkons</h1>
         <p class="subtitle">Monitoring data gangguan jaringan distribusi</p>
+        <nav class="nav" aria-label="Halaman">
+          <a href="index.html" class="active">Data Gangguan</a>
+          <a href="kinerja.html">Kinerja</a>
+        </nav>
       </div>
       <div id="connectionStatus" class="connection">Menghubungkan...</div>
     </div>
@@ -73,6 +79,7 @@
         <button id="resetFilters" type="button" class="button-secondary">Reset filter</button>
       </div>
 
+      <!-- id setiap <select> harus sama dengan id di PAGES.gangguan.filters (app.js) -->
       <div class="filter-grid">
         <div class="field">
           <label for="filter-blth">BLTH</label>
@@ -99,7 +106,7 @@
           <select id="filter-indikasi"><option value="">Semua indikasi</option></select>
         </div>
         <div class="field">
-          <label for="filter-penyebab">Indikasi Penyebab</label>
+          <label for="filter-penyebab">Penyebab</label>
           <select id="filter-penyebab"><option value="">Semua penyebab</option></select>
         </div>
       </div>
@@ -109,7 +116,7 @@
       <div class="section-heading">
         <div>
           <h2>Detail Data Gangguan</h2>
-          <p class="panel-desc">Menampilkan seluruh 15 kolom dari sheet DATA_GANGGUAN.</p>
+          <p class="panel-desc" id="tableNote">Menampilkan seluruh 15 kolom dari sheet DATA_GANGGUAN.</p>
         </div>
         <button id="refreshButton" type="button">Refresh data</button>
       </div>
@@ -142,8 +149,9 @@
 
   <footer>
     Dashboard Jarkons · Data dibaca dari Google Sheets melalui backend API.
-    Pembaruan otomatis setiap 1 menit selama halaman terbuka.
+    <span id="refreshNote"></span>
   </footer>
-    <script src="/assets/js/app.js"></script>
+
+  <script src="app.js"></script>
 </body>
 </html>
