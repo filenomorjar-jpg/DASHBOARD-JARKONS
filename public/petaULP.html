@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142b4a">
+  <title>Dashboard Jarkons | Monitoring Gangguan</title>
+
+  <!-- Chart.js untuk visualisasi. Tabel dan KPI tetap bekerja jika CDN gagal dimuat. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="gangguan">
+  <!-- data-page memilih konfigurasi di app.js (PAGES.gangguan) -->
+
+  <header>
+    <div class="header-inner">
+      <div>
+        <p class="eyebrow">Operational Monitoring</p>
+        <h1>Dashboard Jarkons</h1>
+        <p class="subtitle">Monitoring data gangguan jaringan distribusi</p>
+        <nav class="nav" aria-label="Halaman">
+          <a href="index.html" class="active">Data Gangguan</a>
+          <a href="kinerja.html">Kinerja</a>
+          <a href="petaULP.html">Peta ULP</a>
+        </nav>
+      </div>
+      <div id="connectionStatus" class="connection">Menghubungkan...</div>
+    </div>
+  </header>
+  <footer>
+    Dashboard Jarkons · Data dibaca dari Google Sheets melalui backend API.
+    <span id="refreshNote"></span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
