@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142b4a">
+  <title>Dashboard Jarkons | Kinerja</title>
+
+  <!-- Chart.js untuk visualisasi. Tabel dan KPI tetap bekerja jika CDN gagal dimuat. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="kinerja">
+  <!-- data-page memilih konfigurasi di app.js (PAGES.kinerja) -->
+
+  <header>
+    <div class="header-inner">
+      <div>
+        <p class="eyebrow">Operational Monitoring</p>
+        <h1>Dashboard Jarkons</h1>
+        <p class="subtitle">Monitoring data kinerja</p>
+        <nav class="nav" aria-label="Halaman">
+          <a href="index.html">Data Gangguan</a>
+          <a href="kinerja.html" class="active">Kinerja</a>
+        </nav>
+      </div>
+      <div id="connectionStatus" class="connection">Menghubungkan...</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="section-heading">
+      <h2>Ringkasan Data</h2>
+      <span class="last-updated">Terakhir diperbarui: <strong id="updatedAt">-</strong></span>
+    </div>
+
+    <section class="cards" aria-label="Ringkasan data">
+      <article class="card">
+        <p class="card-label">Total Data</p>
+        <strong class="card-value" id="totalData">0</strong>
+        <div class="card-foot">Jumlah baris data sesuai filter</div>
+      </article>
+      <article class="card">
+        <p class="card-label">Seluruh Data</p>
+        <strong class="card-value" id="totalAll">0</strong>
+        <div class="card-foot">Jumlah baris di sheet DATA_KINERJA</div>
+      </article>
+      <article class="card">
+        <p class="card-label">Jumlah Kolom</p>
+        <strong class="card-value" id="totalColumns">0</strong>
+        <div class="card-foot">Kolom yang dikirim oleh sheet</div>
+      </article>
+      <article class="card">
+        <p class="card-label">Kategori pada Grafik</p>
+        <strong class="card-value" id="totalCategories">0</strong>
+        <div class="card-foot">Nilai berbeda pada kolom grafik</div>
+      </article>
+    </section>
+
+    <section class="charts single" aria-label="Grafik">
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Sebaran Data</h2>
+            <p class="panel-desc">Jumlah data per nilai pada kolom yang dipilih (15 teratas).</p>
+          </div>
+          <div class="inline-field">
+            <label for="chartColumn">Tampilkan berdasarkan kolom</label>
+            <select id="chartColumn"><option value="">Memuat...</option></select>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="kinerjaChart"></canvas></div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Filter Data</h2>
+          <p class="panel-desc">Filter dibuat otomatis dari kolom yang nilainya sedikit dan berulang.</p>
+        </div>
+        <button id="resetFilters" type="button" class="button-secondary">Reset filter</button>
+      </div>
+
+      <!-- Diisi otomatis oleh app.js -->
+      <div class="filter-grid" id="filterGrid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Detail Data Kinerja</h2>
+          <p class="panel-desc" id="tableNote">Menampilkan seluruh kolom dari sheet DATA_KINERJA.</p>
+        </div>
+        <button id="refreshButton" type="button">Refresh data</button>
+      </div>
+
+      <div class="table-toolbar">
+        <input id="search" class="search-box" type="search" placeholder="Cari di seluruh kolom..." aria-label="Cari data">
+        <span class="last-updated" id="rowCount">0 data ditampilkan</span>
+      </div>
+
+      <div id="errorMessage" class="notice" role="alert"></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr id="tableHeader"></tr></thead>
+          <tbody id="dataBody">
+            <tr><td class="empty" colspan="13">Mengambil data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <span id="pageInfo">Halaman 0 dari 0</span>
+        <div class="pager">
+          <button id="previousPage" class="button-secondary" type="button" disabled>Sebelumnya</button>
+          <button id="nextPage" class="button-secondary" type="button" disabled>Berikutnya</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Dashboard Jarkons · Data dibaca dari Google Sheets melalui backend API.
+    <span id="refreshNote"></span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
