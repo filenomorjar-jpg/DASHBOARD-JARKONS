@@ -8,7 +8,8 @@
 
   <!-- Chart.js untuk visualisasi. Tabel dan KPI tetap bekerja jika CDN gagal dimuat. -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-
+  <link rel="stylesheet" href="style.css">
+  
   <style>
     :root {
       --navy: #142b4a;
@@ -765,6 +766,7 @@
     // Ambil data saat halaman dibuka, lalu setiap 60 detik.
     loadData();
     setInterval(loadData, REFRESH_INTERVAL);
+      <script src="app.js"></script>
   </script>
 </body>
 </html>
